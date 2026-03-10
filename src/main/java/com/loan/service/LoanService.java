@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -28,14 +29,18 @@ public class LoanService {
     @Transactional
     public LoanDto createLoan(CreateLoanRequest request) {
         log.info("Creating Loan for accountNumber: {}", request.getAccountNumber());
-        loanRepository.findByAccountNumber(request.getAccountNumber()).ifPresent(loan -> {
-            throw new LoanAlreadyExistsException("Loan", "accountNumber", request.getAccountNumber().toString());
-        });
+        validationIfExistsLoan(request);
         Loan loan = buildCreateLoanInformation(request);
         LoanStatusEntity loanStatus = fillStatusLoan(loan);
         loan.setStatus(loanStatus);
         Loan savedLoan = saveLoanInternal(loan);
         return LoanDto.fromEntity(savedLoan);
+    }
+
+    private void validationIfExistsLoan(CreateLoanRequest request) {
+        loanRepository.findByAccountNumber(request.getAccountNumber()).ifPresent(loan -> {
+            throw new LoanAlreadyExistsException("Loan", "accountNumber", request.getAccountNumber().toString());
+        });
     }
 
     private Loan saveLoanInternal(Loan loan) {
@@ -88,7 +93,14 @@ public class LoanService {
                 .secondNameBeneficiary(request.getSecondNameBeneficiary())
                 .lastNameBeneficiary(request.getLastNameBeneficiary())
                 .emailBeneficiary(request.getEmailBeneficiary())
+                .loanNumber(generateAccountNumber())
                 .build();
+    }
+
+    private Long generateAccountNumber() {
+        long randomLoanNumber = 100000000000L + new Random().nextInt(900000000);
+        log.info("created Account Number {}", randomLoanNumber);
+        return randomLoanNumber;
     }
 
     public LoanDto getLoanById(Long id) {

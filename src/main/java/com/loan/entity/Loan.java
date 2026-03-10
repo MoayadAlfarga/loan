@@ -52,7 +52,8 @@ public class Loan extends Audiate {
     private LocalDate startDate;
     @Column(name = "end_date")
     private LocalDate endDate;
-
+    @Column(name = "loan_number")
+    private Long loanNumber;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "status_id", referencedColumnName = "id")
     private LoanStatusEntity status;
