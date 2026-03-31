@@ -43,8 +43,12 @@ public class LoanService {
         });
     }
 
+
     private Loan saveLoanInternal(Loan loan) {
         return loanRepository.save(loan);
+    }
+    public LoanDto getLoanByLoanNumber(Long loanNumber) {
+        return LoanDto.fromEntity(findByLoanNumber(loanNumber));
     }
 
     @Transactional
@@ -93,13 +97,13 @@ public class LoanService {
                 .secondNameBeneficiary(request.getSecondNameBeneficiary())
                 .lastNameBeneficiary(request.getLastNameBeneficiary())
                 .emailBeneficiary(request.getEmailBeneficiary())
-                .loanNumber(generateAccountNumber())
+                .loanNumber(generateLoanNumber())
                 .build();
     }
 
-    private Long generateAccountNumber() {
+    private Long generateLoanNumber() {
         long randomLoanNumber = 100000000000L + new Random().nextInt(900000000);
-        log.info("created Account Number {}", randomLoanNumber);
+        log.info("generate Loan Number  {}", randomLoanNumber);
         return randomLoanNumber;
     }
 
@@ -138,6 +142,12 @@ public class LoanService {
                 .status(status)
                 .loan(loan)
                 .build();
+    }
+
+
+    private Loan findByLoanNumber(Long loanNumber) {
+        return loanRepository.findByLoanNumber(loanNumber)
+                .orElseThrow(()-> new  ResourceNotFoundException("Loan", "loanNumber", loanNumber.toString()));
     }
 }
 

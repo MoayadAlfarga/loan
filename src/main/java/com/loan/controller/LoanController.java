@@ -27,7 +27,11 @@ public class LoanController {
     public ResponseEntity<LoanDto> getLoanByAccountNumber(@PathVariable(name = "accountNumber") Long accountNumber) {
         return ResponseEntity.ok(loanService.getLoanByAccountNumber(accountNumber));
     }
-
+    @GetMapping("number/{loanNumber}")
+    public ResponseEntity<LoanDto> getLoanByNumber(@PathVariable(name = "loanNumber") Long accountNumber) {
+        return ResponseEntity.ok(loanService.
+                getLoanByLoanNumber(accountNumber));
+    }
     @GetMapping("/{id}")
     public ResponseEntity<LoanDto> getLoanById(@PathVariable Long id) {
         return ResponseEntity.ok(loanService.getLoanById(id));
