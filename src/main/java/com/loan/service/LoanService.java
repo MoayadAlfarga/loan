@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -28,9 +29,7 @@ public class LoanService {
     @Transactional
     public LoanDto createLoan(CreateLoanRequest request) {
         log.info("Creating Loan for accountNumber: {}", request.getAccountNumber());
-        loanRepository.findByAccountNumber(request.getAccountNumber()).ifPresent(loan -> {
-            throw new LoanAlreadyExistsException("Loan", "accountNumber", request.getAccountNumber().toString());
-        });
+        validationIfExistsLoan(request);
         Loan loan = buildCreateLoanInformation(request);
         LoanStatusEntity loanStatus = fillStatusLoan(loan);
         loan.setStatus(loanStatus);
@@ -38,8 +37,18 @@ public class LoanService {
         return LoanDto.fromEntity(savedLoan);
     }
 
+    private void validationIfExistsLoan(CreateLoanRequest request) {
+        loanRepository.findByAccountNumber(request.getAccountNumber()).ifPresent(loan -> {
+            throw new LoanAlreadyExistsException("Loan", "accountNumber", request.getAccountNumber().toString());
+        });
+    }
+
+
     private Loan saveLoanInternal(Loan loan) {
         return loanRepository.save(loan);
+    }
+    public LoanDto getLoanByLoanNumber(Long loanNumber) {
+        return LoanDto.fromEntity(findByLoanNumber(loanNumber));
     }
 
     @Transactional
@@ -88,7 +97,14 @@ public class LoanService {
                 .secondNameBeneficiary(request.getSecondNameBeneficiary())
                 .lastNameBeneficiary(request.getLastNameBeneficiary())
                 .emailBeneficiary(request.getEmailBeneficiary())
+                .loanNumber(generateLoanNumber())
                 .build();
+    }
+
+    private Long generateLoanNumber() {
+        long randomLoanNumber = 100000000000L + new Random().nextInt(900000000);
+        log.info("generate Loan Number  {}", randomLoanNumber);
+        return randomLoanNumber;
     }
 
     public LoanDto getLoanById(Long id) {
@@ -126,6 +142,12 @@ public class LoanService {
                 .status(status)
                 .loan(loan)
                 .build();
+    }
+
+
+    private Loan findByLoanNumber(Long loanNumber) {
+        return loanRepository.findByLoanNumber(loanNumber)
+                .orElseThrow(()-> new  ResourceNotFoundException("Loan", "loanNumber", loanNumber.toString()));
     }
 }
 

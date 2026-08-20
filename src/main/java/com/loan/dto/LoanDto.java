@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
+@ToString
 public class LoanDto {
     private Long id;
     private Long accountNumber;
@@ -27,8 +28,7 @@ public class LoanDto {
     private String secondNameBeneficiary;
     private String lastNameBeneficiary;
     private String emailBeneficiary;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private Long loanNumber;
     public static LoanDto fromEntity(Loan loanEntity) {
         return LoanDto.builder()
                 .id(loanEntity.getId())
@@ -43,8 +43,7 @@ public class LoanDto {
                 .secondNameBeneficiary(loanEntity.getSecondNameBeneficiary())
                 .lastNameBeneficiary(loanEntity.getLastNameBeneficiary())
                 .emailBeneficiary(loanEntity.getEmailBeneficiary())
-                .startDate(loanEntity.getStartDate())
-                .endDate(loanEntity.getEndDate())
+                .loanNumber(loanEntity.getLoanNumber())
                 .build();
     }
 }
