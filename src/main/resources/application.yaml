@@ -1,10 +1,35 @@
 spring:
   application:
-    name: loans        # must match the file in your config repo (e.g., accounts.yml / accounts-prod.yml)
+    name: loans
   config:
     import: "optional:configserver:http://configserver:8083"
+#    import: "optional:configserver:http://localhost:8083"
+
 
 server:
   servlet:
     context-path: /loan-service
-  port: '8091'
+  port: 8091
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+  endpoint:
+    shutdown:
+      access: unrestricted
+    health:
+      probes:
+        enabled: true
+  info:
+    env:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
